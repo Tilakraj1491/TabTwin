@@ -19,7 +19,7 @@ export default function Landing() {
               <a className="rounded-md bg-slate-950 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-slate-800" href="/join/demo">
                 Try demo join page
               </a>
-              <a className="rounded-md border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-800 hover:bg-slate-100" href="https://github.com/">
+              <a className="rounded-md border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-800 hover:bg-slate-100" href="https://github.com/itzzavdhesh/TabTwin">
                 View source
               </a>
             </div>
