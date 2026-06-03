@@ -24,11 +24,11 @@ Guests open the session link in any modern browser. There is nothing to install.
 ## Guest Browser Compatibility
 
 | Browser | Guest support | Install required |
-| --- | --- | --- |
-| Chrome | Yes | No |
-| Firefox | Yes | No |
-| Edge | Yes | No |
-| Safari | Yes | No |
+| ------- | ------------- | ---------------- |
+| Chrome  | Yes           | No               |
+| Firefox | Yes           | No               |
+| Edge    | Yes           | No               |
+| Safari  | Yes           | No               |
 
 ## How It Works
 
@@ -41,8 +41,8 @@ Guests open the session link in any modern browser. There is nothing to install.
 1. Clone the repo.
 
 ```bash
-git clone https://github.com/your-org/tabtwin.git
-cd tabtwin
+git clone https://github.com/itzzavdhesh/TabTwin.git
+cd TabTwin
 npm install
 ```
 
@@ -75,11 +75,11 @@ Open the link the host shares. That is it.
 
 ## Environment Variables
 
-| Variable | Required | Description |
-| --- | --- | --- |
-| `ANTHROPIC_API_KEY` | Optional for local fallback, required for Claude actions | Claude API key used by the AI agent. |
-| `PORT` | No | Server port. Defaults to `3001`. |
-| `CLIENT_URL` | No | Web app origin used when generating join links. Defaults to `http://localhost:5173`. |
+| Variable            | Required                                                 | Description                                                                          |
+| ------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `ANTHROPIC_API_KEY` | Optional for local fallback, required for Claude actions | Claude API key used by the AI agent.                                                 |
+| `PORT`              | No                                                       | Server port. Defaults to `3001`.                                                     |
+| `CLIENT_URL`        | No                                                       | Web app origin used when generating join links. Defaults to `http://localhost:5173`. |
 
 ## Loading The Extension Locally
 
@@ -92,7 +92,6 @@ Screenshot placeholder: `docs/screenshots/tabtwin-popup-start-session.png`
 ## Browser Compatibility Notice
 
 The host extension is Chrome-only for the MVP because it depends on Chrome Manifest V3 extension APIs. Guests can join from Chrome, Firefox, Edge, or Safari through the web app.
-
 
 ## License
 

@@ -8,8 +8,8 @@ Thanks for helping build TabTwin. The project is intentionally lean: a Chrome ex
 2. Clone your fork.
 
 ```bash
-git clone https://github.com/your-name/tabtwin.git
-cd tabtwin
+git clone https://github.com/YOUR-GITHUB-USERNAME/TabTwin.git
+cd TabTwin
 npm install
 ```
 
