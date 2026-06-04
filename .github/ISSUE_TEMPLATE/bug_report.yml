@@ -1,5 +1,5 @@
 name: Bug Report
-description: Report a bug in AgroNavis
+description: Report a bug in TabTwin
 labels: [bug]
 body:
   - type: markdown
