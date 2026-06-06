@@ -189,9 +189,6 @@ export function createSessionManager({ clientUrl, redisClient }) {
       if (before !== sockets.guests.length) {
         const data = await _load(sessionId);
         if (data) {
-          const removedIds = new Set(
-            [...Array(before - sockets.guests.length)].map(() => null) // placeholder
-          );
           // Sync Redis guest list to match the in-process list of remaining IDs.
           const remainingIds = new Set(sockets.guests.map((g) => g.id));
           data.guests = data.guests.filter((g) => remainingIds.has(g.id));
@@ -210,9 +207,10 @@ export function createSessionManager({ clientUrl, redisClient }) {
         changed = true;
       }
 
-      // Clean up socketStore for sessions that have no live sockets at all.
-      if (sockets.hostSocket === null && sockets.guests.length === 0 && !changed) {
-        // Leave the Redis key intact — the session is still valid; just no one is connected right now.
+      // Reclaim the in-process entry when no sockets remain.
+      // The Redis key is intentionally kept — the session stays valid for reconnections.
+      if (sockets.hostSocket === null && sockets.guests.length === 0) {
+        socketStore.delete(sessionId);
       }
     }
   }
