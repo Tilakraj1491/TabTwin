@@ -37,11 +37,23 @@ const sessions = createSessionManager({ clientUrl: CLIENT_URL, redisClient });
 app.use(cors({ origin: true }));
 app.use(express.json({ limit: '1mb' }));
 
-app.get('/api/health', async (_req, res) => {
-  res.json({ ok: true, service: 'tabtwin-server', sessions: await sessions.count() });
-});
+/**
+ * Wraps an async route handler so that any rejected promise is forwarded to
+ * Express error-handling middleware via next(err), preventing unhandled
+ * rejections when Redis or session calls fail.
+ *
+ * @param {(req: import('express').Request, res: import('express').Response, next: import('express').NextFunction) => Promise<void>} fn
+ * @returns {import('express').RequestHandler}
+ */
+function asyncHandler(fn) {
+  return (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
+}
 
-app.post('/api/session/create', async (req, res) => {
+app.get('/api/health', asyncHandler(async (_req, res) => {
+  res.json({ ok: true, service: 'tabtwin-server', sessions: await sessions.count() });
+}));
+
+app.post('/api/session/create', asyncHandler(async (req, res) => {
   const hostName = req.body?.hostName || 'Host';
   const session = await sessions.createSession({ hostName });
   res.status(201).json({
@@ -49,9 +61,9 @@ app.post('/api/session/create', async (req, res) => {
     link: session.link,
     permissions: session.permissions
   });
-});
+}));
 
-app.get('/api/session/:id', async (req, res) => {
+app.get('/api/session/:id', asyncHandler(async (req, res) => {
   const session = await sessions.getSession(req.params.id);
   if (!session) {
     res.status(404).json({ exists: false, message: 'Session not found or expired.' });
@@ -69,11 +81,18 @@ app.get('/api/session/:id', async (req, res) => {
     })),
     createdAt: session.createdAt
   });
-});
+}));
 
-app.delete('/api/session/:id', async (req, res) => {
+app.delete('/api/session/:id', asyncHandler(async (req, res) => {
   const ended = await sessions.endSession(req.params.id);
   res.status(ended ? 200 : 404).json({ ended });
+}));
+
+// Express error-handling middleware: catches errors forwarded by asyncHandler.
+// eslint-disable-next-line no-unused-vars
+app.use((err, _req, res, _next) => {
+  console.error('[TabTwin] Unhandled route error:', err);
+  res.status(500).json({ error: 'Internal server error.' });
 });
 
 const wss = new WebSocketServer({ server });
