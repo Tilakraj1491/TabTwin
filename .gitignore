@@ -1,2 +1,5 @@
-node_modules/ 
-popup-dist/ 
+node_modules/
+popup-dist/
+.env
+.env.local
+.env.*.local
