@@ -49,6 +49,7 @@ export default function Join({ sessionId }) {
             className="w-full rounded-md border border-slate-300 px-3 py-3 text-slate-950 outline-none ring-teal-500 focus:ring-2"
             placeholder="Maya"
             value={name}
+            maxLength={40}
             onChange={(event) => setName(event.target.value)}
           />
           <button

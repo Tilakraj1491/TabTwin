@@ -41,7 +41,8 @@ export function createSignalingHandler({ sessions }) {
       }
 
       case 'session:join': {
-        const joined = await sessions.addGuest(payload.sessionId, socket, { name: payload.name });
+        const safeName = String(payload.name || '').trim().slice(0, 40) || 'Guest';
+        const joined = await sessions.addGuest(payload.sessionId, socket, { name: safeName });
         if (!joined) {
           safeSend(socket, { event: 'error', payload: { message: 'Session not found.' } });
           return;
