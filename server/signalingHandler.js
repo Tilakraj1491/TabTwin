@@ -82,26 +82,27 @@ export function createSignalingHandler({ sessions }) {
         return;
       }
 
-      case 'cursor:update':
-      case 'action:approved':
-      case 'agent:action':
-      case 'control:revoke': {
+      case 'cursor:move':
+      case 'action:request':
+      case 'webrtc:offer':
+      case 'webrtc:answer':
+      case 'webrtc:ice-candidate': {
         if (!session) return;
-        broadcastGuests(session, { event, payload: withSender(socket, payload) }, payload.guestId);
+        const target = socket.tabTwin.role === 'host' ? findGuestSocket(session, payload.guestId) : session.hostSocket;
+        safeSend(target, { event, payload: withSender(socket, payload) });
         return;
       }
 
-      case 'agent:command': {
+      case 'crdt:update': {
         if (!session) return;
-        // TODO: Move AI command execution to a queued worker for long-running browser tasks.
-        safeSend(session.hostSocket, {
-          event: 'agent:action',
-          payload: {
-            command: payload.command,
-            actions: payload.actions || [],
-            summary: payload.summary || 'Agent command received.'
-          }
-        });
+        const safePayload = {
+          ...payload,
+          annotation: payload.annotation
+            ? { ...payload.annotation, text: String(payload.annotation.text || '').slice(0, 500) }
+            : payload.annotation
+        };
+        const target = socket.tabTwin.role === 'host' ? findGuestSocket(session, payload.guestId) : session.hostSocket;
+        safeSend(target, { event, payload: withSender(socket, safePayload) });
         return;
       }
 
