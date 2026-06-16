@@ -26,7 +26,11 @@ export default function AnnotationLayer({ session }) {
         placeholder="Leave a note for the host"
         value={note}
         onChange={(event) => setNote(event.target.value)}
+        maxLength={500}
       />
+      <p className="mt-1 text-right text-xs text-slate-400">
+        {note.length}/500
+      </p>
       <button
         className="mt-3 w-full rounded-md bg-teal-600 px-3 py-2 text-sm font-semibold text-white disabled:bg-slate-400"
         disabled={!session.permissions.canAnnotate}
