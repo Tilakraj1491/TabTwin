@@ -4,35 +4,42 @@ import cors from 'cors';
 import http from 'node:http';
 import { WebSocketServer } from 'ws';
 import Redis from 'ioredis';
-import { createSessionManager } from './sessionManager.js';
+import { createSessionManager as createRedisSessionManager } from './sessionManager.js';
+import { createSessionManager as createMemorySessionManager } from './sessionManager.inmemory.js';
 import { createSignalingHandler } from './signalingHandler.js';
 
 const PORT = Number(process.env.PORT || 3001);
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 const REDIS_URL = process.env.REDIS_URL;
 
-if (!REDIS_URL) {
-  console.error(
-    '[TabTwin] REDIS_URL is not set.\n' +
-    'Start Redis locally and add REDIS_URL=redis://localhost:6379 to your .env file.\n' +
-    'Quick start: docker run -p 6379:6379 redis:7-alpine'
-  );
-  process.exit(1);
-}
-
-const redisClient = new Redis(REDIS_URL, {
-  // Retry up to 3 times with a 500 ms delay before giving up on startup.
-  maxRetriesPerRequest: 3,
-  lazyConnect: false
-});
-
-redisClient.on('error', (err) => {
-  console.error('[TabTwin] Redis connection error:', err.message);
-});
-
 const app = express();
 const server = http.createServer(app);
-const sessions = createSessionManager({ clientUrl: CLIENT_URL, redisClient });
+
+// Use Redis-backed session manager when REDIS_URL is configured, otherwise
+// fall back to the in-memory manager so the server can run without Redis for
+// local development and testing. The in-memory store is NOT suitable for
+// production: sessions are lost on restart and cannot be shared across
+// multiple server instances.
+let sessions;
+if (REDIS_URL) {
+  const redisClient = new Redis(REDIS_URL, {
+    // Retry up to 3 times with a 500 ms delay before giving up on startup.
+    maxRetriesPerRequest: 3,
+    lazyConnect: false
+  });
+  redisClient.on('error', (err) => {
+    console.error('[TabTwin] Redis connection error:', err.message);
+  });
+  sessions = createRedisSessionManager({ clientUrl: CLIENT_URL, redisClient });
+  console.log('[TabTwin] Using Redis session store:', REDIS_URL);
+} else {
+  console.warn(
+    '[TabTwin] REDIS_URL is not set — using in-memory session store.\n' +
+    'Sessions will be lost on restart. Set REDIS_URL for production use.\n' +
+    'Quick start: docker run -d -p 6379:6379 redis:7-alpine'
+  );
+  sessions = createMemorySessionManager({ clientUrl: CLIENT_URL });
+}
 
 app.use(cors({ origin: true }));
 app.use(express.json({ limit: '1mb' }));
