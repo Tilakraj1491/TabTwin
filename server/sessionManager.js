@@ -163,7 +163,7 @@ export function createSessionManager({ clientUrl, redisClient }) {
     };
 
     data.guests.push(guestData);
-    _logActivity(data, 'Host connected');
+    _logActivity(data, '${name} joined');
     await _save(data);
 
     const entry = _socketEntry(sessionId);
@@ -182,7 +182,7 @@ export function createSessionManager({ clientUrl, redisClient }) {
         sockets.hostSocket = null;
         const data = await _load(sessionId);
         if (data) {
-          _logActivity(data, 'Host connected');
+          _logActivity(data, 'Host disconnected');
           await _save(data);
         }
         changed = true;
@@ -203,7 +203,7 @@ export function createSessionManager({ clientUrl, redisClient }) {
           // Using the disconnected ID rather than a local-socket allowlist avoids
           // wiping guests whose sockets live on other server instances.
           data.guests = data.guests.filter((g) => !disconnectedIds.has(g.id));
-          _logActivity(data, 'Host connected');
+          _logActivity(data, 'Guest disconnected');
           await _save(data);
         }
 
